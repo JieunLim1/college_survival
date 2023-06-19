@@ -3,10 +3,14 @@ from langchain.llms import OpenAI
 from langchain.chains import LLMChain
 import os
 import json
-os.environ["OPENAI_API_KEY"] = "..."
+from dotenv import load_dotenv
+
+load_dotenv()
+os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
 
 llm = OpenAI(temperature=0.9)
 
+#prompt template으로 질문 생성하고 json형식으로 반환
 def make_question(input_text=""):
     prompt = PromptTemplate(
         input_variables=["text"],
@@ -16,6 +20,7 @@ def make_question(input_text=""):
     result = json.loads(chain.run(input_text))
     return (result)
 
+#사용자의 답과 문제의 답이 일치하는지 체점
 def scoring(user_answer: str, question: dict):
     if (user_answer == question['Answer']):
         print ("Correct")
