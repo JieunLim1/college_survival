@@ -2,15 +2,16 @@ import os
 import json
 from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
-load_dotenv()
-os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
-
-chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
 from langchain.schema import (
     AIMessage,
     HumanMessage,
     SystemMessage
 )
+load_dotenv()
+os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
+
+chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
+
 def make_q(user_input=""):
     messages = [
         SystemMessage(content="""Create a multiple-choice question in the text and outputting a JSON object with an array of these entities, using the following format:
@@ -29,6 +30,7 @@ def make_q(user_input=""):
     result = result.content
     jdata = json.loads(result,strict = False)
     return jdata
+    
 def scoring(user_answer: str, q : dict):
     if user_answer == q["Answer"]:
         print("Correct, ", q['Explanation'])
