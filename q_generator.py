@@ -27,8 +27,8 @@ def make_q(user_input=""):
         HumanMessage(content=user_input)
     ]   
     result = chat(messages)
-    result = result.content
-    jdata = json.loads(result,strict = False)
+    result = result.content #
+    jdata = json.loads(result,strict = False) #\n과 같은 제어 문자 허용
     return jdata
     
 def scoring(user_answer: str, q : dict):
