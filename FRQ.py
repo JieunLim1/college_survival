@@ -51,7 +51,7 @@ def scoring(user_input: str):
 def printing(q : dict):
     print("Your estimated score: " + q['Similarity'])
     if float(q['Similarity']) < 0.8:
-        print("Incorrect. " + q['Things to improve'] + " You could look upon " + q['Key Term(s)' + "."])
+        print("Incorrect. " + q['Things to improve'] + " You could look upon " + q['Key Term(s)'] + ".")
     else:
         print("Correct. "+ "If you would like to improve more, please refer below: " + q['Things to improve'])
 
