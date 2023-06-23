@@ -1,4 +1,6 @@
 import streamlit as st
+# pip install streamlit
+# 실행 명령어 : streamlit run app.py
 
 # [TODO] GUI 형태로 만들어보기.
 
