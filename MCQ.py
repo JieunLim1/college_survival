@@ -8,9 +8,7 @@ from langchain.schema import (
     HumanMessage,
     SystemMessage
 )
-load_dotenv()
-os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
-chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
+
 
 class MCQ(QA):
 
@@ -31,7 +29,7 @@ class MCQ(QA):
             ),
             HumanMessage(content=self.context)
         ]   
-        result = chat(messages)
+        result = self.chat(messages)
         result = result.content 
         jdata = json.loads(result,strict = False) #\n과 같은 제어 문자 허용
         return jdata
@@ -44,5 +42,3 @@ class MCQ(QA):
             return "Correct, " + self.q['Explanation']
         else:
             return "Incorrect, " + self.q["Explanation"]
-
-
