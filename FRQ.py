@@ -3,10 +3,7 @@ import os
 import json
 from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
-load_dotenv()
-os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
 
-chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
 from langchain.schema import (
     AIMessage,
     HumanMessage,
@@ -28,7 +25,7 @@ class FRQ(QA):
             ),
             HumanMessage(content = self.context)
         ]   
-        result = chat(messages)
+        result = self.chat(messages)
         result = result.content
         jdata = json.loads(result,strict = False)
         return jdata
@@ -50,15 +47,10 @@ class FRQ(QA):
             ),
             HumanMessage(content = ("Model Answer : " + self.q['Model Answer'] + ", User response : " + answer))
             ]
-           
-        result = chat(messages)
+        result = self.chat(messages)
         result = result.content
-        jdata = json.loads(result,strict = False)
-
+        self.jdata = json.loads(result,strict = False)
         if float(self.jdata['Similarity']) < 0.8:
-             return "Your estimated score: " + jdata['Similarity'] + "Incorrect. " + jdata['Things to improve'] + " You could look upon " + jdata['Key Term(s)']
+             return "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Incorrect. " + self.jdata['Things to improve'] + " You could look upon " + self.jdata['Key Term(s)']
         else:
-            return "Your estimated score: " + jdata['Similarity'] + "Correct. "+ "If you would like to improve more, please refer below: " + jdata['Things to improve']
-        
-
-
+            return "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Correct. "+ "If you would like to improve more, please refer below: " + self.jdata['Things to improve']
