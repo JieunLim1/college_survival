@@ -8,15 +8,15 @@ from langchain.schema import (
     HumanMessage,
     SystemMessage
 )
-load_dotenv()
-os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
-chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
 
 # [TODO] QA class를 이용해서 FRQ와 MCQ를 정리하기.
 
 class QA(ABC):
     def __init__(self, context):
         # openai 연결 부분 초기화?
+        load_dotenv()
+        os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
+        self.chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
         self.context = context
         self.q = self.make_q()
         
@@ -37,5 +37,3 @@ class QA(ABC):
     #def feedback(self):
         # self 안의 정보를 토대로 사용자에게 피드백을 반환한다.
      #   pass
-
-
