@@ -26,13 +26,33 @@ q_engines = {
     'MCQ': MCQ
     }
 
-if st.button('문제 생성'):
-    st.write(q_type)
-    q1 = q_engines[q_type](context) #객체 생성
-    question = q1.show_q()
-    st.write(question) # 질문 띄우기
-    user_answer = st.text_input("Enter your answer : ") #사용자로부터 입력값 받기
+#session_state 안에 initialize
+if 'gen_button_clicked' not in st.session_state:
+    st.session_state['gen_button_clicked'] = False
+    st.session_state['scoring_button_clicked'] = False
 
-    if st.button('Confirm'):
-        result = q1.scoring(user_answer) # 채점
+gen_button = st.button('문제 생성')
+#print(gen_button)
+
+if gen_button:
+    st.session_state['gen_button_clicked'] = True
+#print("st.session_state['gen_button_clicked']",st.session_state['gen_button_clicked'])
+#session_state는 파이썬의 딕셔너리 같은 형태로 저장
+
+if st.session_state['gen_button_clicked']:
+    with st.spinner('Wait for it...'):
+        st.write(q_type)
+        q1 = q_engines[q_type](context) #객체 생성
+        question = q1.show_q()
+    st.write(question) # 질문 띄우기
+
+    st.session_state['user_answer'] = st.text_area("Enter your answer : ") #사용자로부터 입력값 받기
+    scoring_button = st.button('채점 하기')
+    if scoring_button:
+        st.session_state['scoring_button_clicked'] = True
+
+    if st.session_state['scoring_button_clicked']:
+        with st.spinner('Wait for it...'):
+            result = q1.scoring(st.session_state['user_answer']) # 채점
+        st.balloons()
         st.write(result) #채점한 결과 띄우기
