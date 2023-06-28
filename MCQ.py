@@ -16,7 +16,6 @@ class MCQ(QA):
 
     def __init__(self,context):
         super().__init__(context)
-        self.scoring()
 
     def make_q(self):
         messages = [
@@ -38,13 +37,12 @@ class MCQ(QA):
         return jdata
     
     def show_q(self):
-            print (self.q['Question'], self.q['Options'])
+            return self.q['Question'], self.q['Options']
 
-    def scoring(self):
-        if self.user_input == self.q["Answer"]:
-            print("Correct, ",self.q['Explanation'])
+    def scoring(self, answer : str):
+        if answer == self.q["Answer"]:
+            return "Correct, " + self.q['Explanation']
         else:
-            print("Incorrect, ", self.q["Explanation"])
+            return "Incorrect, " + self.q["Explanation"]
 
-#q = MCQ("""The mere exposure effect in psychology, or the familiarity principle, is the idea that people tend to prefer things that are familiar. This means that having already encountered something creates a preference for it. For example, when people are repeatedly exposed to advertisements, they tend to favor the product because it is more familiar than brands they are not familiar with. The mere exposure effect applies to every area of a person's life, including people, things, words, paintings, and sounds.
-#        """)
+
