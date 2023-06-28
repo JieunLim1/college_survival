@@ -16,11 +16,9 @@ chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
 
 class QA(ABC):
     def __init__(self, context):
-        # openai 연결 부분 초기화
+        # openai 연결 부분 초기화?
         self.context = context
         self.q = self.make_q()
-        self.show_q()
-        self.user_input = input("Enter your answer : ")
         
     
     def make_q(self):
@@ -31,11 +29,13 @@ class QA(ABC):
         #self 안에 저장된 문제 (w/ 선택사항) 프린트
         pass        
 
-    def scoring(self, user_answer):
+    def scoring(self):
         # 정답 여부를 측정한다.
         # 문제의 정보는 self 안에 있다.
         pass
     
-    def feedback(self):
+    #def feedback(self):
         # self 안의 정보를 토대로 사용자에게 피드백을 반환한다.
-        pass
+     #   pass
+
+
