@@ -16,7 +16,7 @@ class MCQ(QA):
 
     def __init__(self,context):
         super().__init__(context)
-        #self.scoring()
+        self.scoring()
 
     def make_q(self):
         messages = [
