@@ -19,8 +19,8 @@ class QA(ABC):
         # openai 연결 부분 초기화
         self.context = context
         self.q = self.make_q()
-        #self.show_q()
-        #self.user_input = input("Enter your answer : ")
+        self.show_q()
+        self.user_input = input("Enter your answer : ")
         
     
     def make_q(self):
@@ -39,5 +39,3 @@ class QA(ABC):
     def feedback(self):
         # self 안의 정보를 토대로 사용자에게 피드백을 반환한다.
         pass
-
-
