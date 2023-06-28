@@ -26,7 +26,7 @@ q_engines = {
     'MCQ': MCQ
     }
 
-#session_state 안에 initialize
+#session_state initialize
 if 'gen_button_clicked' not in st.session_state:
     st.session_state['gen_button_clicked'] = False
     st.session_state['scoring_button_clicked'] = False
@@ -51,8 +51,9 @@ if st.session_state['gen_button_clicked']:
     if scoring_button:
         st.session_state['scoring_button_clicked'] = True
 
-    if st.session_state['scoring_button_clicked']:
+    while st.session_state['scoring_button_clicked']:
         with st.spinner('Wait for it...'):
             result = q1.scoring(st.session_state['user_answer']) # 채점
         st.balloons()
         st.write(result) #채점한 결과 띄우기
+        st.session_state['scoring_button_clicked'] = False
