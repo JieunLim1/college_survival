@@ -27,20 +27,20 @@ q_engines = {
 if 'gen_button_clicked' not in st.session_state:
     st.session_state['gen_button_clicked'] = False
     st.session_state['scoring_button_clicked'] = False
-if 'q' not in st.session_state:
-    st.session_state['q'] = q_engines[q_type](context) #객체 생성
-print(id(st.session_state['q']))
+# if 'q' not in st.session_state:
+    
 
 gen_button = st.button('문제 생성')
 if gen_button:
     st.session_state['gen_button_clicked'] = True
-#print("st.session_state['gen_button_clicked']",st.session_state['gen_button_clicked'])
+    with st.spinner('Wait for it...'):
+        st.session_state['q'] = q_engines[q_type](context) #객체 생성
+        print('SESSION STATE Q ID', id(st.session_state['q']))
 #session_state는 파이썬의 딕셔너리 같은 형태로 저장
 
 if st.session_state['gen_button_clicked']:
-    with st.spinner('Wait for it...'):
-        st.write(q_type)
-        question = st.session_state['q'].show_q()
+    st.write(q_type)
+    question = st.session_state['q'].show_q()
     st.write(question) # 질문 띄우기
 
     st.session_state['user_answer'] = st.text_area("Enter your answer : ") #사용자로부터 입력값 받기
@@ -52,5 +52,6 @@ if st.session_state['gen_button_clicked']:
     if st.session_state['scoring_button_clicked']:
         with st.spinner('Wait for it...'):
             result = st.session_state['q'].scoring(st.session_state['user_answer']) # 채점
-        st.balloons()
+        if float(st.session_state['q'].jdata['Similarity']) > 0.8:
+            st.balloons()
         st.write(result) #채점한 결과 띄우기
