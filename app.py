@@ -1,8 +1,5 @@
 import streamlit as st
 
-# pip install streamlit
-# 실행 명령어 : streamlit run app.py
-
 # [TODO] GUI 형태로 만들어보기.
 st.markdown("""# 대학생 구원자
 ---
@@ -30,10 +27,10 @@ q_engines = {
 if 'gen_button_clicked' not in st.session_state:
     st.session_state['gen_button_clicked'] = False
     st.session_state['scoring_button_clicked'] = False
+if 'q' not in st.session_state:
+    st.session_state['q'] = q_engines[q_type](context) #객체 생성
 
 gen_button = st.button('문제 생성')
-#print(gen_button)
-
 if gen_button:
     st.session_state['gen_button_clicked'] = True
 #print("st.session_state['gen_button_clicked']",st.session_state['gen_button_clicked'])
@@ -42,18 +39,18 @@ if gen_button:
 if st.session_state['gen_button_clicked']:
     with st.spinner('Wait for it...'):
         st.write(q_type)
-        q1 = q_engines[q_type](context) #객체 생성
-        question = q1.show_q()
+        question = st.session_state['q'].show_q()
+    print(id(question))
     st.write(question) # 질문 띄우기
 
     st.session_state['user_answer'] = st.text_area("Enter your answer : ") #사용자로부터 입력값 받기
     scoring_button = st.button('채점 하기')
     if scoring_button:
         st.session_state['scoring_button_clicked'] = True
+        #st.session_state['gen_button_clicked'] =  False
 
-    while st.session_state['scoring_button_clicked']:
+    if st.session_state['scoring_button_clicked']:
         with st.spinner('Wait for it...'):
-            result = q1.scoring(st.session_state['user_answer']) # 채점
+            result = st.session_state['q'].scoring(st.session_state['user_answer']) # 채점
         st.balloons()
         st.write(result) #채점한 결과 띄우기
-        st.session_state['scoring_button_clicked'] = False
