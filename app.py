@@ -29,6 +29,7 @@ if 'gen_button_clicked' not in st.session_state:
     st.session_state['scoring_button_clicked'] = False
 if 'q' not in st.session_state:
     st.session_state['q'] = q_engines[q_type](context) #객체 생성
+print(id(st.session_state['q']))
 
 gen_button = st.button('문제 생성')
 if gen_button:
