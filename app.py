@@ -40,7 +40,6 @@ if st.session_state['gen_button_clicked']:
     with st.spinner('Wait for it...'):
         st.write(q_type)
         question = st.session_state['q'].show_q()
-    print(id(question))
     st.write(question) # 질문 띄우기
 
     st.session_state['user_answer'] = st.text_area("Enter your answer : ") #사용자로부터 입력값 받기
