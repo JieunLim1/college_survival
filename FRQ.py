@@ -49,7 +49,7 @@ class FRQ(QA):
             HumanMessage(content = ("Model Answer : " + self.q['Model Answer'] + ", User response : " + self.answer))
             ]
         result = self.chat(messages)
-        self.result = result.content
+        result = result.content
         self.jdata = json.loads(result,strict = False)
         if float(self.jdata['Similarity']) < 0.8:
             self.result = "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Incorrect. " + self.jdata['Things to improve'] + " You could look upon " + self.jdata['Key Term(s)']
