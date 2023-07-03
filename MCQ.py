@@ -37,8 +37,21 @@ class MCQ(QA):
     def show_q(self):
             return self.q['Question'], self.q['Options']
 
-    def scoring(self, answer : str):
-        if answer == self.q["Answer"]:
-            return "Correct, " + self.q['Explanation']
+    def scoring(self, input : str):
+        self.input = input
+        if self.input == self.q["Answer"]:
+            self.result = "Correct, " + self.q['Explanation']
+            return self.result
         else:
-            return "Incorrect, " + self.q["Explanation"]
+            self.result = "Incorrect, " + self.q["Explanation"]
+            return self.result
+        
+    def record(self,date : str):
+        con = sq3.connect("record1.db", isolation_level=None)
+        cursor = con.cursor()
+        cursor.execute('CREATE TABLE if not exists questions_data(date TEXT, context TEXT, question TEXT, input TEXT, result TEXT)')
+
+        data_list = (date,self.context,self.q['Question'],self.input,self.result)
+        cursor.execute('Insert INTO questions_data(date, context, question, input, result) \
+                    VALUES(?,?,?,?,?)', data_list)
+        cursor.close()
