@@ -56,7 +56,7 @@ if st.session_state['gen_button_clicked']:
         if float(st.session_state['q'].jdata['Similarity']) > 0.8:
             st.balloons()
         st.write(result) #채점한 결과 띄우기
-        st.session_state['q'].record(st.session_state['time']) # 데이터베이스에 삽입
+        st.session_state['q'].record(st.session_state['time']) # 데이터 기록
 
     # record_button = st.button('기록보기')    
     # if record_button:
