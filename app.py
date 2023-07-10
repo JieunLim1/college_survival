@@ -1,15 +1,39 @@
 import streamlit as st
 import time
 import sqlite3 as sq3
+import pandas as pd
+
 
 # [TODO] GUI 형태로 만들어보기.
+st.set_page_config(
+    page_title="MAIN",
+    page_icon="🧚🏻",
+)
+st.sidebar.success("Select a demo above.")
+
 st.markdown("""# 대학생 구원자
 ---
 - 이 앱은 학업에 지친 대학생에게 도움이 되고자 개발되어 필기한 내용들을 바탕으로 문제를 생성시켜 복습을 도와주는데 효율적입니다.
 """)
 
-context = st.text_area('여기에 문제를 생성할 원문을 적어주세요.')
-#파일 받는 것도 만들어보기
+con = sq3.connect("record1.db",isolation_level = None)
+cursor = con.cursor()
+cursor.execute("SELECT context FROM ctx_data")
+row = cursor.fetchall() #[('',),('',) ...]
+raw_data = [x[0][:80] for x in row]
+print(row)
+context = list(enumerate(raw_data,1)) #[(1,'...'),(...)]
+
+option = st.selectbox('Which context would you like to select?', context)
+st.write('You selected:', option)
+
+if 'id' not in st.session_state:
+    st.session_state['id'] = 0
+if 'context' not in st.session_state:
+    st.session_state['context'] = ''
+st.session_state['id'] = option[0]
+st.session_state['context'] = row[option[0]]
+
 
 q_type = st.radio(
     "문제의 유형을 선택해주세요",
@@ -29,14 +53,15 @@ q_engines = {
 if 'gen_button_clicked' not in st.session_state:
     st.session_state['gen_button_clicked'] = False
     st.session_state['scoring_button_clicked'] = False
+    st.session_state['recording_button_clicked'] = False
 # if 'q' not in st.session_state:
     
 gen_button = st.button('문제 생성')
 if gen_button:
     st.session_state['gen_button_clicked'] = True
     with st.spinner('Wait for it...'):
-        st.session_state['q'] = q_engines[q_type](context) #객체 생성
-#session_state는 파이썬의 딕셔너리 같은 형태로 저장
+        if 'q' not in st.session_state:
+            st.session_state['q'] = q_engines[q_type](st.session_state['context']) #객체 생성
 
 if st.session_state['gen_button_clicked']:
     question = st.session_state['q'].show_q()
@@ -53,34 +78,6 @@ if st.session_state['gen_button_clicked']:
         st.session_state['time'] = now
         with st.spinner('Wait for it...'):
             result = st.session_state['q'].scoring(st.session_state['user_answer']) # 채점
-        if float(st.session_state['q'].jdata['Similarity']) > 0.8:
-            st.balloons()
         st.write(result) #채점한 결과 띄우기
-        st.session_state['q'].record(st.session_state['time']) # 데이터 기록
-
-    # record_button = st.button('기록보기')    
-    # if record_button:
-    #         con = sq3.connect("record1.db", isolation_level=None)
-    #         cursor = con.cursor()
-    #         cursor.execute('SELECT * FROM questions_data')
-    #         rowList = cursor.fetchall()
-    #         for row in rowList:
-    #             st.write(row)
-    #         cursor.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        #st.session_state['q'].record(st.session_state['time']) # 데이터베이스에 삽입
+        st.session_state['q'].qdata()
