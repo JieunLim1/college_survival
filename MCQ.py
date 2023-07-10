@@ -2,6 +2,7 @@ import os
 import json
 from qa import QA
 from dotenv import load_dotenv
+import sqlite3 as sq3
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import (
     AIMessage,
@@ -31,8 +32,8 @@ class MCQ(QA):
         ]   
         result = self.chat(messages)
         result = result.content 
-        jdata = json.loads(result,strict = False) #\n과 같은 제어 문자 허용
-        return jdata
+        self.jdata = json.loads(result,strict = False) #\n과 같은 제어 문자 허용
+        return self.jdata
     
     def show_q(self):
             return self.q['Question'], self.q['Options']
@@ -40,18 +41,25 @@ class MCQ(QA):
     def scoring(self, input : str):
         self.input = input
         if self.input == self.q["Answer"]:
-            self.result = "Correct, " + self.q['Explanation']
+            self.q['score'] = "P"
+            self.result = "Correct, " + self.q['Explanation'] + "Score: " + self.q['score']
             return self.result
         else:
+            self.q['score'] = "F"
             self.result = "Incorrect, " + self.q["Explanation"]
             return self.result
-        
-    def record(self,date : str):
+    
+    def record(self,date):
+        self.date = date
         con = sq3.connect("record1.db", isolation_level=None)
         cursor = con.cursor()
-        cursor.execute('CREATE TABLE if not exists questions_data(date TEXT, context TEXT, question TEXT, input TEXT, result TEXT)')
+        cursor.execute('CREATE TABLE if not exists questions_data(date TEXT, context TEXT, question TEXT, input TEXT, result TEXT, score TEXT)')
 
-        data_list = (date,self.context,self.q['Question'],self.input,self.result)
-        cursor.execute('Insert INTO questions_data(date, context, question, input, result) \
-                    VALUES(?,?,?,?,?)', data_list)
-        cursor.close()
+        data_list = (self.date,self.context,self.q['Question'],self.input,self.result,self.q['score'])
+        cursor.execute('Insert INTO questions_data(date, context, question, input, result, score) \
+                    VALUES(?,?,?,?,?,?)', data_list)
+        con.commit()
+        con.close()
+
+
+
