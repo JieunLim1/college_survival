@@ -2,6 +2,7 @@ from abc import ABC
 import os
 import json
 from dotenv import load_dotenv
+import sqlite3 as sq3
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import (
     AIMessage,
@@ -12,6 +13,10 @@ from langchain.schema import (
 # [TODO] QA class를 이용해서 FRQ와 MCQ를 정리하기.
 
 class QA(ABC):
+    input=''
+    result=''
+    jdata = ''
+
     def __init__(self, context):
         # openai 연결 부분 초기화?
         load_dotenv()
@@ -34,6 +39,12 @@ class QA(ABC):
         # 문제의 정보는 self 안에 있다.
         pass
     
-    #def feedback(self):
-        # self 안의 정보를 토대로 사용자에게 피드백을 반환한다.
-     #   pass
+    def record(self):
+        pass
+
+    def qdata(self):
+        con = sq3.connect("record1.db")
+        cursor = con.cursor()
+        cursor.execute('CREATE TABLE if not exist q(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, question TEXT)')
+        cursor.execute('Insert INTO table q(question) VALUES (?)', self.q)
+        con.commit()
