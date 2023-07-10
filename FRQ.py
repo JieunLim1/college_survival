@@ -3,6 +3,8 @@ import os
 import json
 from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
+import sqlite3 as sq3
+import time
 
 from langchain.schema import (
     AIMessage,
@@ -27,14 +29,15 @@ class FRQ(QA):
         ]   
         result = self.chat(messages)
         result = result.content
+        print(result)
         jdata = json.loads(result,strict = False)
         return jdata
     
     def show_q(self):
             return self.q['Question']
 
-    def scoring(self, answer : str):
-        self.answer = answer
+    def scoring(self, input : str):
+        self.input = input
         messages = [
             SystemMessage(content="""
             model answer과 user's response이 얼마나 유사한지 아래의 output 형식과 같이 나타내시오. 
@@ -46,7 +49,7 @@ class FRQ(QA):
             }
             """
             ),
-            HumanMessage(content = ("Model Answer : " + self.q['Model Answer'] + ", User response : " + self.answer))
+            HumanMessage(content = ("Model Answer : " + self.q['Model Answer'] + ", User response : " + self.input))
             ]
         result = self.chat(messages)
         result = result.content
@@ -57,14 +60,19 @@ class FRQ(QA):
         else:
             self.result = "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Correct. "+ "If you would like to improve more, please refer below: " + self.jdata['Things to improve']
             return self.result
-
         
-    def record(self, date : str):
+    def record(self,date):
+        self.date = date
         con = sq3.connect("record1.db", isolation_level=None)
         cursor = con.cursor()
-        cursor.execute('CREATE TABLE if not exists questions_data(date TEXT, context TEXT, question TEXT, input TEXT, result TEXT)')
+        cursor.execute('CREATE TABLE if not exists questions_data(date TEXT, context TEXT, question TEXT, input TEXT, result TEXT, score REAL)')
 
-        data_list = (date,self.context,self.q['Question'],self.answer,self.result)
-        cursor.execute('Insert INTO questions_data(date, context, question, input, result) \
-                    VALUES(?,?,?,?,?)', data_list)
-        cursor.close()
+        data_list = (self.date,self.context,self.q['Question'],self.input,self.result,float(self.jdata['Similarity']))
+        cursor.execute('Insert INTO questions_data(date, context, question, input, result, score) \
+                    VALUES(?,?,?,?,?,?)', data_list)
+        con.commit()
+        con.close()
+
+
+    
+            
