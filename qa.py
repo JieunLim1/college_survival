@@ -39,12 +39,16 @@ class QA(ABC):
         # 문제의 정보는 self 안에 있다.
         pass
     
-    def record(self):
+    def record(self): 
+        #문제와 원문 그 외의 것 저장
         pass
 
-    def qdata(self):
+    def q_data(self):                    #문제만 저장
         con = sq3.connect("record1.db")
         cursor = con.cursor()
-        cursor.execute('CREATE TABLE if not exist q(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, question TEXT)')
-        cursor.execute('Insert INTO table q(question) VALUES (?)', self.q)
+        cursor.execute('CREATE TABLE if not exists question(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, question TEXT)')
+        print(self.q)
+        print(json.dumps(self.q))
+        cursor.execute('INSERT INTO question(question) VALUES (?)', [json.dumps(self.q)])
         con.commit()
+    
