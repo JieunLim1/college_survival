@@ -65,14 +65,10 @@ class FRQ(QA):
         self.date = date
         con = sq3.connect("record1.db", isolation_level=None)
         cursor = con.cursor()
-        cursor.execute('CREATE TABLE if not exists questions_data(date TEXT, context TEXT, question TEXT, input TEXT, result TEXT, score REAL)')
+        cursor.execute('CREATE TABLE if not exists response_data(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, date TEXT, input TEXT, result TEXT, score REAL)')
 
-        data_list = (self.date,self.context,self.q['Question'],self.input,self.result,float(self.jdata['Similarity']))
-        cursor.execute('Insert INTO questions_data(date, context, question, input, result, score) \
-                    VALUES(?,?,?,?,?,?)', data_list)
+        data_list = (self.date,self.input,self.result,float(self.jdata['Similarity']))
+        cursor.execute('Insert INTO response_data(date, input, result, score) \
+                    VALUES(?,?,?,?)', data_list)
         con.commit()
         con.close()
-
-
-    
-            
