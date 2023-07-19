@@ -12,7 +12,8 @@ st.set_page_config(
 st.sidebar.success("Select a demo above.")
 
 st.markdown("""# 대학생 구원자
----- 이 앱은 학업에 지친 대학생에게 도움이 되고자 개발되어 필기한 내용들을 바탕으로 문제를 생성시켜 복습을 도와주는데 효율적입니다.
+---- 
+이 앱은 학업에 지친 대학생에게 도움이 되고자 개발되어 필기한 내용들을 바탕으로 문제를 생성시켜 복습을 도와주는데 효율적입니다.
 """)
 
 con = sq3.connect("record1.db", isolation_level = None)
@@ -55,7 +56,6 @@ if 'gen_button_clicked' not in st.session_state:
     st.session_state['gen_button_clicked'] = False
     st.session_state['scoring_button_clicked'] = False
     st.session_state['recording_button_clicked'] = False
-# if 'q' not in st.session_state:
     
 gen_button = st.button('문제 생성')
 if gen_button:

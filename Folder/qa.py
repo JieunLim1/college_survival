@@ -17,13 +17,15 @@ class QA(ABC):
     result=''
     jdata = ''
 
-    def __init__(self, context):
+    def __init__(self, context,num):
         # openai 연결 부분 초기화?
         load_dotenv()
         os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
         self.chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
+        self.num = num
         self.context = context
         self.q = self.make_q()
+
         
     
     def make_q(self):

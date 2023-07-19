@@ -13,12 +13,11 @@ from langchain.schema import (
 
 class MCQ(QA):
 
-    def __init__(self,context):
-        super().__init__(context)
+    def __init__(self,context,num):
+        super().__init__(context,num)
 
     def make_q(self):
-        messages = [
-            SystemMessage(content="""Create a multiple-choice question in the text and outputting a JSON object with an array of these entities, using the following format:
+        prompt = """Create """ + str(self.num) + """ different multiple-choice question(s) in the text and outputting a JSON object with an array of these entities, using the following format:
             input:
             "The applications of language models include:
             • Auto-completion
@@ -27,7 +26,8 @@ class MCQ(QA):
             • Dialogue systems: Evaluating the most probable words required during a conversation and generating sentences accordingly"
             output:
             {"Question": "What are the possible applications of language models?","Options" :{"A":"Auto-completion","B": "Document summarization","C": "Machine translation","D": "All of the above"},"Answer": "D","Explanation" : "Language models can be applied in various tasks such as auto-completion, document summarization, machine translation, speech recognition, dialogue systems, and even sentence creation."}"""
-            ),
+        messages = [
+            SystemMessage(content=prompt),
             HumanMessage(content=self.context)
         ]   
         result = self.chat(messages)

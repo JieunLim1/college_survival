@@ -12,29 +12,29 @@ from langchain.schema import (
     SystemMessage
 )
 class FRQ(QA):
-    def __init__(self,context):
-        super().__init__(context)
+    def __init__(self,context,num):
+        super().__init__(context,num)
 
     def make_q(self):
-        messages = [
-            SystemMessage(content="""Create a free-response question in the text and outputting a JSON object with an array of these entities, using the following format:
+        prompt = """Create""" + str(self.num) + """ different free-response question(s) in the text and outputting a JSON object with an array of these entities, using the following format:
             input:
             "Social facilitation is an individual's improved performance on easy or well-learned tasks when they are with others. When others observe us, we become aroused, which solicits the most likely response to a stimulus. This means that we will perform better on easy tasks, but worse on difficult tasks. The tendency to perform worse on difficult tasks is called social inhibition. 
             output:
             {"Question": "What is social facilitation? How does it affect an individual's performance on tasks?", 
             "Model Answer" : "Social facilitation is a phenomenon where an individual performs better on easy or well-learned tasks when they are in the presence of others."}
             """
-            ),
+        messages = [
+            SystemMessage(content= prompt),
             HumanMessage(content = self.context)
         ]   
         result = self.chat(messages)
         result = result.content
-        print(result)
         jdata = json.loads(result,strict = False)
-        return jdata
+        print(jdata)
+        #return jdata
     
     def show_q(self):
-            return self.q['Question']
+        return self.q['Question']
 
     def scoring(self, input : str):
         self.input = input
