@@ -46,10 +46,6 @@ class FRQ(QA):
     
     def show_q(self):
         self.qlist = [ i['Question'] for i in self.q ]
-        # q_string = ""
-        # self.num = len(self.qlist)
-        # for i in range(len(self.qlist)):
-        #     q_string += str(i+1) + ". " + self.qlist[i] + "\n"
         return self.qlist
 
     def scoring(self, response_list : list):
@@ -81,9 +77,6 @@ class FRQ(QA):
                 self.result = "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Incorrect. " + self.jdata['Things to improve'] + " You could look upon " + self.jdata['Key Term(s)']
             else:
                 self.result = "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Correct. "+ "If you would like to improve more, please refer below: " + self.jdata['Things to improve']
-            cursor.execute('INSERT INTO response_data(input,result,score,question_id) VALUES(?,?,?,?)',(response_list[i],self.result,self.jdata['Similarity'],self.qid_list[i]))
-            print("this is line 89")
-            print(self.result)
             result_list.append(self.result)
         print(result_list)
         return result_list
