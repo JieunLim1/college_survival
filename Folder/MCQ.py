@@ -13,11 +13,17 @@ from langchain.schema import (
 
 class MCQ(QA):
 
-    def __init__(self,context,num):
-        super().__init__(context,num)
+    def __init__(self,context,num,ctx_id):
+        super().__init__(context,num,ctx_id)
 
     def make_q(self):
-        prompt = """Create """ + str(self.num) + """ different multiple-choice question(s) in the text and outputting a JSON object with an array of these entities, using the following format:
+        messages = []
+        self.qid_list = []
+        self.results = []
+        con = sq3.connect("record1.db", isolation_level=None)
+        cursor = con.cursor()
+        cursor.execute('CREATE TABLE if not exists question(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, question TEXT, context_id INTEGER)')
+        prompt1 = """Create a multiple-choice question in the text and outputting a JSON object with an array of these entities, using the following format:
             input:
             "The applications of language models include:
             • Auto-completion
@@ -26,28 +32,62 @@ class MCQ(QA):
             • Dialogue systems: Evaluating the most probable words required during a conversation and generating sentences accordingly"
             output:
             {"Question": "What are the possible applications of language models?","Options" :{"A":"Auto-completion","B": "Document summarization","C": "Machine translation","D": "All of the above"},"Answer": "D","Explanation" : "Language models can be applied in various tasks such as auto-completion, document summarization, machine translation, speech recognition, dialogue systems, and even sentence creation."}"""
-        messages = [
-            SystemMessage(content=prompt),
-            HumanMessage(content=self.context)
-        ]   
-        result = self.chat(messages)
-        result = result.content 
-        self.jdata = json.loads(result,strict = False) #\n과 같은 제어 문자 허용
-        return self.jdata
+        message = [SystemMessage(content=prompt1),
+                    HumanMessage(content=self.context)]
+        result = self.chat(message)
+        result = result.content
+        result = json.loads(result,strict = False)
+        messages.append(message)
+        self.results.append(result) #\n과 같은 제어 문자 허용 
+        cursor.execute('Insert INTO question(question,context_id) VALUES(?,?)', [result['Question'],self.ctx_id])
+        self.qid_list.append(cursor.lastrowid)
+
+        prompt2 = """Create another question that is different from previosuly created questions. But keep the output format the same.       
+            output:
+            {"Question": "What are the possible applications of language models?","Options" :{"A":"Auto-completion","B": "Document summarization","C": "Machine translation","D": "All of the above"},"Answer": "D","Explanation" : "Language models can be applied in various tasks such as auto-completion, document summarization, machine translation, speech recognition, dialogue systems, and even sentence creation."}"""
+        for i in range(self.num-1):
+            message = [SystemMessage(content = prompt2),HumanMessage(content = self.context)]
+            result = self.chat(message)
+            result = result.content
+            result = json.loads(result,strict = False)
+            messages.append(message)
+            self.results.append(result)
+            cursor.execute('Insert INTO question(question,context_id) VALUES(?,?)', [result['Question'],self.ctx_id])
+            self.qid_list.append(cursor.lastrowid)
+        print(self.results)
+        return self.results
     
     def show_q(self):
-            return self.q['Question'], self.q['Options']
+        self.q_list = []
+        self.answer_list = []
+        self.explanation_list = []
+        for i in range(len(self.q)):
+            q = self.results[i].get('Question')
+            o = str(self.results[i].get('Options'))
+            qo = str(i+1) + ". " + q + " Options: " + o 
+            print(qo)
+            self.q_list.append(qo)
+            self.answer_list.append(self.results[i].get('Answer'))
+            self.explanation_list.append(self.results[i].get('Explanation'))
+        print(self.q_list)
+        return self.q_list
 
-    def scoring(self, input : str):
-        self.input = input
-        if self.input == self.q["Answer"]:
-            self.q['score'] = "P"
-            self.result = "Correct, " + self.q['Explanation'] + "Score: " + self.q['score']
-            return self.result
-        else:
-            self.q['score'] = "F"
-            self.result = "Incorrect, " + self.q["Explanation"]
-            return self.result
+
+    def scoring(self, response_list : list):
+        con = sq3.connect("record1.db", isolation_level=None)
+        cursor = con.cursor()
+        cursor.execute('CREATE TABLE if not exists response_data(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, input TEXT, result TEXT, score REAL, question_id INTEGER)')
+        result_list = []
+        for i in range(len(response_list)):
+            if response_list[i] == self.answer_list[i]:
+                score = "P"
+                self.result = "Correct, " + self.explanation_list[i] + "Score: " + score 
+            else:
+                score = "F"
+                self.result = "Incorrect, " + self.explanation_list[i]
+            result_list.append(self.result)
+            cursor.execute('INSERT INTO response_data(input,result,score,question_id) VALUES(?,?,?,?)',(response_list[i],self.result,score,self.qid_list[i]))
+            return result_list
     
     def record(self,date):
         self.date = date
