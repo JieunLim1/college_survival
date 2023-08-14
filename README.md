@@ -1,7 +1,7 @@
 # college_survival
 
 ## QA Generator
-QA Generator is a LangChain LLM application. It dynamically reasons your learning needs and updates its own prompts to serve you best.
+QA Generator is an application that utilizes GPT to create questions and checks the answers.
 
 It provides a series of questions, marks the answers, and finally gives you essential questions to review at the final moment before your test. Read more
 how it helps your college life here.
