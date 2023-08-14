@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 import sqlite3 as sq3
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import (
-    AIMessage,
     HumanMessage,
     SystemMessage
 )
@@ -13,17 +12,17 @@ from langchain.schema import (
 # [TODO] QA class를 이용해서 FRQ와 MCQ를 정리하기.
 
 class QA(ABC):
-    input=''
-    result=''
-    jdata = ''
 
-    def __init__(self, context):
+    def __init__(self, context,num,ctx_id):
         # openai 연결 부분 초기화?
         load_dotenv()
         os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
         self.chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
+        self.num = num
         self.context = context
-        self.q = self.make_q()
+        self.ctx_id = ctx_id
+        self.q = self.make_q() #q는 리스트[{'Question' : "..."},{}]
+
         
     
     def make_q(self):
@@ -52,3 +51,4 @@ class QA(ABC):
         cursor.execute('INSERT INTO question(question) VALUES (?)', [json.dumps(self.q)])
         con.commit()
     
+ 
