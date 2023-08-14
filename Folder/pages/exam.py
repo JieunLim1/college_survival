@@ -95,3 +95,12 @@ if st.session_state['gen_button_clicked']:
     print(results)
     for i in range(len(st.session_state['q'].scoring(response_list))):
         st.write(str(i) + st.session_state['q'].scoring(response_list)[i])
+
+
+
+
+
+
+        
+
+    
