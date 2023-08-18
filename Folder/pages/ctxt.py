@@ -17,13 +17,22 @@ if save_button:
     st.session_state['save_button_clicked'] = True
 if st.session_state['save_button_clicked']:
     #원문에 따른 과목 저장
-    cursor.execute('CREATE TABLE if not exists subject_data(id INTEGER PRIMARY KEY AUTOINCREMENT)')
-    cursor.execute('Insert INTO subject_data(subject) VALUES(?)', (st.session_state['subject'],))
-    id = cursor.lastrowid
-    print(id)
+    cursor.execute('CREATE TABLE if not exists subject_data(id INTEGER PRIMARY KEY AUTOINCREMENT, subject TEXT)')
+    cursor.execute("SELECT ifnull(max(id),0) id FROM subject_data WHERE subject = ?", (st.session_state['subject'],))
+    this = cursor.fetchall()[0]
+    this = this[0]    
+    print(this)
+    if this == 0:
+        cursor.execute('INSERT INTO subject_data(subject) VALUES(?)', (st.session_state['subject'],))
+        this = cursor.lastrowid
+
     #원문 저장
-    cursor.execute("""CREATE TABLE if not exists ctx_data(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, context TEXT, subject_id INTEGER)""")
-    cursor.execute('Insert INTO ctx_data(context) VALUES(?,?)',(st.session_state['context'],id))
+    cursor.execute("""CREATE TABLE if not exists ctx_data(id INTEGER PRIMARY KEY AUTOINCREMENT, context TEXT, subject_id INTEGER)""")
+    cursor.execute("SELECT ifnull(max(id),0) id FROM ctx_data WHERE context = ?",(st.session_state['context'],))
+    result = cursor.fetchone()[0]
+    print(result)
+    if result == 0:
+        cursor.execute('INSERT INTO ctx_data(context,subject_id) VALUES(?,?)',(st.session_state['context'],this))
+    else:
+        pass
     con.commit()
-
-

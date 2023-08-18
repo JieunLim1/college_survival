@@ -19,22 +19,23 @@ if correction_button:
     st.session_state['correction_button'] = True
     subject = option[1] #subject 내용
     subject_id = option[0] #subject index 
-    cursor.execute("CREATE TABLE if not exists incorrect_data(question_id INTEGER ,question TEXT, subject TEXT, context TEXT, score REAL)")
-    # cursor.execute("""INSERT INTO incorrect_data(question_id INTEGER ,question TEXT, subject TEXT, context TEXT, score REAL) SELECT question.id, question.question, subject, context ,score INTO incorrect_data FROM subject_data 
-    #                         join ctx_data on subject_data.id = ctx_data.subject_id 
-    #                         join question on ctx_data.id = question.context_id
-    #                         join response_data on response_data.score < 0.8""")
-    cursor.execute("SELECT id,question FROM incorrect_table WHERE subject = ?",(subject,))
+    cursor.execute("CREATE TABLE if not exists incorrect_table(question_id INTEGER ,question TEXT, subject TEXT, context TEXT, answer TEXT, score REAL)")
+    cursor.execute("""INSERT INTO incorrect_table(question_id, question, subject, context, answer , score ) SELECT question.id, question.question, subject, context, question.answer, score FROM subject_data 
+                        join ctx_data on subject_data.id = ctx_data.subject_id 
+                        join question on ctx_data.id = question.context_id
+                        join response_data on response_data.score < 0.8""")
+    cursor.execute("SELECT question_id,question,answer FROM incorrect_table WHERE subject = ?",(subject,))
     incorrect_data = cursor.fetchall()
     print(incorrect_data)
     results = [] 
+    count = 0
     for i in range(len(incorrect_data)):
         st.write(incorrect_data[i][1])
-        response = st.text_input("여기에 답을 입력하시오.")
+        response = st.text_input("여기에 답을 입력하시오.", key = count)
         results.append(response)
+        st.write(incorrect_data[i][2])
+        count += 1
         
-    st.write(result)
-
 
 
 

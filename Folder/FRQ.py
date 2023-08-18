@@ -21,7 +21,7 @@ class FRQ(QA):
         cursor = con.cursor()
         cursor.execute('CREATE TABLE if not exists question(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, question TEXT)')
         cursor.execute('CREATE TABLE if not exists exam_ppr(id INTEGER PRIMARY KEY AUTOINCREMENT, exam TEXT)')
-        
+
         messages = []
         results = []
         self.qid_list = []
@@ -41,10 +41,9 @@ class FRQ(QA):
             result = json.loads(result,strict = False)
             messages.append(message)
             results.append(result)
-            cursor.execute('Insert INTO question(question,context_id) VALUES(?,?)', [result['Question'],self.ctx_id])
+            cursor.execute('Insert INTO question(question,context_id,answer) VALUES(?,?,?)', [result['Question'],self.ctx_id,result['Model Answer']])
             self.qid_list.append(cursor.lastrowid)
             con.commit()
-        print(self.qid_list)
         return results
     
     def show_q(self):
@@ -86,32 +85,33 @@ class FRQ(QA):
         con = sq3.connect("record1.db", isolation_level=None)
         cursor = con.cursor()
         cursor.execute('CREATE TABLE if not exists response_data(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, input TEXT, result TEXT, score REAL, question_id INTEGER)')
-        self.input = input
         self.alist = [i['Model Answer'] for i in self.q]
-        messages = [
-            SystemMessage(content="""
-            model answer과 user's response이 얼마나 유사한지 아래의 output 형식과 같이 나타내시오. 
-            output:
-            {
-            "Similarity" : "0.47" , 
-            "Things to improve": "The user could improve their response by using more precise terminology and providing specific examples", 
-            "Key Term(s)" : "social facilitation"
-            }
-            """
-            ),
-            HumanMessage(content=("Model Answer : "+self.alist[index]+", User response : "+self.input))
-            ]
-        result = self.chat(messages)
-        result = result.content
-        self.jdata = json.loads(result,strict = False)
-        if float(self.jdata['Similarity']) < 0.8:
-            self.result = "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Incorrect. " + self.jdata['Things to improve'] + " You could look upon " + self.jdata['Key Term(s)']
-            con.execute('INSERT INTO response_data(input,result,score,question_id) VALUES(?,?,?,?)',(input,self.result,self.jdata['Similarity'],self.qid_list[index]))
-            return self.result
-        else:
-            self.result = "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Correct. "+ "If you would like to improve more, please refer below: " + self.jdata['Things to improve']
-            con.execute('INSERT INTO response_data(input,result,score,question_id) VALUES(?,?,?,?)',(input,self.result,self.jdata['Similarity'],self.qid_list[index]))
-            return self.result
+        for i in range(len(response_list)):
+            messages = [
+                SystemMessage(content="""
+                model answer과 user's response이 얼마나 유사한지 아래의 output 형식과 같이 나타내시오. 
+                output:
+                {
+                "Similarity" : "0.47" , 
+                "Things to improve": "The user could improve their response by using more precise terminology and providing specific examples", 
+                "Key Term(s)" : "social facilitation"
+                }
+                """
+                ),
+                HumanMessage(content=("Model Answer : "+self.alist[i]+", User response : "+response_list[i]))
+                ]
+            result = self.chat(messages)
+            result = result.content
+            self.jdata = json.loads(result,strict = False)
+            print("this is line 80 ",end = " " )
+            print(self.jdata)
+            if float(self.jdata['Similarity']) < 0.8:
+                self.result = "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Incorrect. " + self.jdata['Things to improve'] + " You could look upon " + self.jdata['Key Term(s)']
+            else:
+                self.result = "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Correct. "+ "If you would like to improve more, please refer below: " + self.jdata['Things to improve']
+            result_list.append(self.result)
+        print(result_list)
+        return result_list
         
     # def record(self,date):
     #     self.date = date
@@ -119,12 +119,11 @@ class FRQ(QA):
     #     cursor = con.cursor()
     #     cursor.execute('CREATE TABLE if not exists response_data(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, date TEXT, input TEXT, result TEXT, score REAL)')
 
-    #     data_list = (self.date,self.input,self.result,float(self.jdata['Similarity']))
-    #     cursor.execute('Insert INTO response_data(date, input, result, score) \
-    #                 VALUES(?,?,?,?)', data_list)
-    #     con.commit()
-    #     con.close()
-
+        data_list = (self.date,self.input,self.result,float(self.jdata['Similarity']))
+        cursor.execute('Insert INTO response_data(date, input, result, score) \
+                    VALUES(?,?,?,?)', data_list)
+        con.commit()
+        con.close()
 
     
             

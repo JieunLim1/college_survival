@@ -39,7 +39,7 @@ class MCQ(QA):
         result = json.loads(result,strict = False)
         messages.append(message)
         self.results.append(result) #\n과 같은 제어 문자 허용 
-        cursor.execute('Insert INTO question(question,context_id) VALUES(?,?)', [result['Question'],self.ctx_id])
+        cursor.execute('Insert INTO question(question,context_id,answer) VALUES(?,?,?)', [result['Question'],self.ctx_id,result['Answer']])
         self.qid_list.append(cursor.lastrowid)
 
         prompt2 = """Create another question that is different from previosuly created questions. But keep the output format the same.       
@@ -52,7 +52,8 @@ class MCQ(QA):
             result = json.loads(result,strict = False)
             messages.append(message)
             self.results.append(result)
-            cursor.execute('Insert INTO question(question,context_id) VALUES(?,?)', [result['Question'],self.ctx_id])
+            qo = result['Question'] + " " + str(result['Options'])
+            cursor.execute('Insert INTO question(question,context_id) VALUES(?,?)', [qo,self.ctx_id])
             self.qid_list.append(cursor.lastrowid)
         print(self.results)
         return self.results
@@ -80,14 +81,14 @@ class MCQ(QA):
         result_list = []
         for i in range(len(response_list)):
             if response_list[i] == self.answer_list[i]:
-                score = "P"
-                self.result = "Correct, " + self.explanation_list[i] + "Score: " + score 
+                score = "1"
+                self.result = "Correct, " + self.explanation_list[i] + " Score: " + score 
             else:
-                score = "F"
-                self.result = "Incorrect, " + self.explanation_list[i]
+                score = "0"
+                self.result = "Incorrect, " + self.explanation_list[i] + " Score: " + score 
             result_list.append(self.result)
             cursor.execute('INSERT INTO response_data(input,result,score,question_id) VALUES(?,?,?,?)',(response_list[i],self.result,score,self.qid_list[i]))
-            return result_list
+        return result_list
     
     def record(self,date):
         self.date = date

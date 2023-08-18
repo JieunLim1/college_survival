@@ -3,7 +3,7 @@ import sqlite3 as sq3
 import pandas as pd
   
 st.set_page_config(page_title="Generating Your Exam Paper", page_icon="📝")
-st.markdown(""" # Examination Paper 
+st.markdown(""" # Your Test Paper 
 ----
 Create Your Test Paper""")
 q_number = st.text_input("몇개의 질문을 생성하시겠습니까?")
@@ -73,28 +73,26 @@ with st.spinner('Wait for it...'):
 if st.session_state['gen_button_clicked']:
     response_list = []
     results = []
+    count = 0
     for i in range(len(qlist)):
         if 'response' not in st.session_state:
             st.session_state['response'] = None
-        q_text = str(i+1) + " " + qlist[i]
+        q_text = qlist[i]
         st.write(q_text)
-        st.session_state['response'] = st.text_input("Type Your Answer")
-        if 'submit_button' not in st.session_state:
-            st.session_state['submit_button'] = False
-        if st.button("submit"):
-            st.session_state['submit_button'] = True
-        if st.session_state['submit_button']:
-            response_list.append(st.session_state['response'])
-            del st.session_state['response']
+        st.session_state['response'] = st.text_input("Type Your Answer", key = count)
+        response_list.append(st.session_state['response'])
+        count += 1
     if '채점하기' not in st.session_state:
         st.session_state["채점하기"] = False
-    if st.button("채점하기"):
+    btn_clicked = st.button("채점하기")
+    if btn_clicked:
         st.session_state["채점하기"] = True
-        results = st.session_state['q'].scoring(response_list)
+        if st.session_state["채점하기"]:
+            results = st.session_state['q'].scoring(response_list)
     print("this is line 94")
     print(results)
     for i in range(len(st.session_state['q'].scoring(response_list))):
-        st.write(str(i) + st.session_state['q'].scoring(response_list)[i])
+        st.write(str(i+1) + " " + st.session_state['q'].scoring(response_list)[i])
 
 
 
