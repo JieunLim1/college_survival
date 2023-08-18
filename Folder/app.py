@@ -36,7 +36,6 @@ st.session_state['id'] = option[0]
 st.session_state['context'] = row[option[0]-1][0] #option에서 id는 1부터 시작하기 때문에 -1
 print(st.session_state['context'])
 
-
 q_type = st.radio(
     "문제의 유형을 선택해주세요",
     ('FRQ', 'MCQ'))

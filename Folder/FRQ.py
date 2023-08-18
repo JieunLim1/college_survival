@@ -13,13 +13,15 @@ from langchain.schema import (
 class FRQ(QA):
     def __init__(self,context,num,ctx_id):
         super().__init__(context,num,ctx_id)
+    def __init__(self,context,num,ctx_id):
+        super().__init__(context,num,ctx_id)
 
     def make_q(self):
         con = sq3.connect("record1.db", isolation_level=None)
         cursor = con.cursor()
         cursor.execute('CREATE TABLE if not exists question(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, question TEXT)')
         cursor.execute('CREATE TABLE if not exists exam_ppr(id INTEGER PRIMARY KEY AUTOINCREMENT, exam TEXT)')
-
+        
         messages = []
         results = []
         self.qid_list = []
@@ -42,6 +44,7 @@ class FRQ(QA):
             cursor.execute('Insert INTO question(question,context_id) VALUES(?,?)', [result['Question'],self.ctx_id])
             self.qid_list.append(cursor.lastrowid)
             con.commit()
+        print(self.qid_list)
         return results
     
     def show_q(self):
@@ -80,6 +83,35 @@ class FRQ(QA):
             result_list.append(self.result)
         print(result_list)
         return result_list
+        con = sq3.connect("record1.db", isolation_level=None)
+        cursor = con.cursor()
+        cursor.execute('CREATE TABLE if not exists response_data(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, input TEXT, result TEXT, score REAL, question_id INTEGER)')
+        self.input = input
+        self.alist = [i['Model Answer'] for i in self.q]
+        messages = [
+            SystemMessage(content="""
+            model answer과 user's response이 얼마나 유사한지 아래의 output 형식과 같이 나타내시오. 
+            output:
+            {
+            "Similarity" : "0.47" , 
+            "Things to improve": "The user could improve their response by using more precise terminology and providing specific examples", 
+            "Key Term(s)" : "social facilitation"
+            }
+            """
+            ),
+            HumanMessage(content=("Model Answer : "+self.alist[index]+", User response : "+self.input))
+            ]
+        result = self.chat(messages)
+        result = result.content
+        self.jdata = json.loads(result,strict = False)
+        if float(self.jdata['Similarity']) < 0.8:
+            self.result = "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Incorrect. " + self.jdata['Things to improve'] + " You could look upon " + self.jdata['Key Term(s)']
+            con.execute('INSERT INTO response_data(input,result,score,question_id) VALUES(?,?,?,?)',(input,self.result,self.jdata['Similarity'],self.qid_list[index]))
+            return self.result
+        else:
+            self.result = "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Correct. "+ "If you would like to improve more, please refer below: " + self.jdata['Things to improve']
+            con.execute('INSERT INTO response_data(input,result,score,question_id) VALUES(?,?,?,?)',(input,self.result,self.jdata['Similarity'],self.qid_list[index]))
+            return self.result
         
     # def record(self,date):
     #     self.date = date
