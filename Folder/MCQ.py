@@ -22,7 +22,7 @@ class MCQ(QA):
         self.results = []
         con = sq3.connect("record1.db", isolation_level=None)
         cursor = con.cursor()
-        cursor.execute('CREATE TABLE if not exists question(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, question TEXT, context_id INTEGER)')
+        cursor.execute('CREATE TABLE if not exists question(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, question TEXT, context_id INTEGER, answer TEXT)')
         prompt1 = """Create a multiple-choice question in the text and outputting a JSON object with an array of these entities, using the following format:
             input:
             "The applications of language models include:
@@ -39,7 +39,8 @@ class MCQ(QA):
         result = json.loads(result,strict = False)
         messages.append(message)
         self.results.append(result) #\n과 같은 제어 문자 허용 
-        cursor.execute('Insert INTO question(question,context_id,answer) VALUES(?,?,?)', [result['Question'],self.ctx_id,result['Answer']])
+        qo = result['Question'] + " " + str(result['Options'])
+        cursor.execute('Insert INTO question(question,context_id,answer) VALUES(?,?,?)', [qo,self.ctx_id,result['Answer']])
         self.qid_list.append(cursor.lastrowid)
 
         prompt2 = """Create another question that is different from previosuly created questions. But keep the output format the same.       
@@ -53,7 +54,7 @@ class MCQ(QA):
             messages.append(message)
             self.results.append(result)
             qo = result['Question'] + " " + str(result['Options'])
-            cursor.execute('Insert INTO question(question,context_id) VALUES(?,?)', [qo,self.ctx_id])
+            cursor.execute('Insert INTO question(question,context_id,answer) VALUES(?,?,?)', [qo,self.ctx_id,result['Answer']])
             self.qid_list.append(cursor.lastrowid)
         print(self.results)
         return self.results
@@ -66,11 +67,9 @@ class MCQ(QA):
             q = self.results[i].get('Question')
             o = str(self.results[i].get('Options'))
             qo = str(i+1) + ". " + q + " Options: " + o 
-            print(qo)
             self.q_list.append(qo)
             self.answer_list.append(self.results[i].get('Answer'))
             self.explanation_list.append(self.results[i].get('Explanation'))
-        print(self.q_list)
         return self.q_list
 
 

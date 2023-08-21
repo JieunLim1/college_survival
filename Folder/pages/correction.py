@@ -11,6 +11,8 @@ cursor = con.cursor()
 subject_list = cursor.execute("SELECT * FROM subject_data")
 option = st.selectbox("PICK a SUBJECT",subject_list) 
 
+num = st.text_input('몇개의 (오답)질문을 만들까요?')
+
 if 'correction_button' not in st.session_state:
     st.session_state['correction_button'] = False
 correction_button = st.button("오답노트 생성")
@@ -26,15 +28,16 @@ if correction_button:
                         join response_data on response_data.score < 0.8""")
     cursor.execute("SELECT question_id,question,answer FROM incorrect_table WHERE subject = ?",(subject,))
     incorrect_data = cursor.fetchall()
-    print(incorrect_data)
     results = [] 
     count = 0
     for i in range(len(incorrect_data)):
         st.write(incorrect_data[i][1])
         response = st.text_input("여기에 답을 입력하시오.", key = count)
         results.append(response)
-        st.write(incorrect_data[i][2])
-        count += 1
+        st.button("채점하기", key = count + 300)
+        if st.button:
+            st.write(incorrect_data[i][2])
+            count += 1
         
 
 

@@ -7,7 +7,8 @@ st.markdown(""" # Your Test Paper
 ----
 Create Your Test Paper""")
 q_number = st.text_input("몇개의 질문을 생성하시겠습니까?")
-q_number = int(q_number)
+if q_number != None:
+    q_number = int(q_number)
 
 con = sq3.connect("record1.db", isolation_level = None)
 cursor = con.cursor()
@@ -89,10 +90,8 @@ if st.session_state['gen_button_clicked']:
         st.session_state["채점하기"] = True
         if st.session_state["채점하기"]:
             results = st.session_state['q'].scoring(response_list)
-    print("this is line 94")
-    print(results)
-    for i in range(len(st.session_state['q'].scoring(response_list))):
-        st.write(str(i+1) + " " + st.session_state['q'].scoring(response_list)[i])
+        for i in range(len(st.session_state['q'].scoring(response_list))):
+            st.write(str(i+1) + " " + st.session_state['q'].scoring(response_list)[i])
 
 
 
