@@ -19,17 +19,15 @@ OPENAI_API_KEY: Go to OpenAI to generate your own API key.
    pip install python-dotenv
    from dotenv import load_dotenv
   ```
-
-* To connect with OpenAI,
-  ```bash
-    load_dotenv()
-    os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
-    chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
-  ```
-
-* Run
-
-`streamlit run (head_file_name).py`
+  * To connect with OpenAI,
+    ```bash
+      load_dotenv()
+      os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
+      chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
+    ```
+    * Run
+    
+    `streamlit run (head_file_name).py`
 
 
 

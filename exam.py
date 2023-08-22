@@ -11,9 +11,6 @@ st.sidebar.success("Select a demo above.")
 st.markdown(""" # Your Test Paper 
 ----
 Create Your Test Paper""")
-q_number = st.text_input("몇개의 질문을 생성하시겠습니까?")
-if q_number != None and q_number != '':
-    q_number = int(q_number)
 
 con = sq3.connect("record1.db", isolation_level = None)
 cursor = con.cursor()
@@ -24,7 +21,12 @@ raw_data = [x[0][:80] for x in row] #리스트 안의 각 튜플 형태로 저�
 context = list(enumerate(raw_data,1)) #[(1,'...'),(2,'...'),(3,'...'),... ]
 
 option = st.selectbox('Which context would you like to select?', context)
-st.write('You selected:', option) #option = (#,'...')
+st.write('You selected:', option) #option = (#,'...')                   
+q_number = st.text_input("몇개의 질문을 생성하시겠습니까?")
+if q_number != None and q_number != '':
+    q_number = int(q_number)
+
+
 
 
 #id, context session_state initialize
