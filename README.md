@@ -1,5 +1,5 @@
 # college_survival
-
+To assist you survive in college
 ## QA Generator
 QA Generator is an application that utilizes GPT to create questions and checks the answers.
 
@@ -20,11 +20,11 @@ OPENAI_API_KEY: Go to OpenAI to generate your own API key.
   ```
 
 To connect with OpenAI,
-```bash
-  load_dotenv()
-  os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
-  chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
-```
+  ```bash
+    load_dotenv()
+    os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
+    chat = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0.9)
+  ```
 
 * Run
 `streamlit run (head_file_name).py`
