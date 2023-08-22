@@ -1,5 +1,7 @@
 import streamlit as st
 import sqlite3 as sq3
+import pandas as pd
+
 st.set_page_config(page_title="Saving Context", page_icon="🗂️")
 st.sidebar.header("Saving Your Context")
 
@@ -8,6 +10,8 @@ st.subheader("This page is to record your entered context and categorize it into
 st.session_state['context'] = st.text_area("여기에 저장할 원문을 적어주세요.")
 st.session_state['subject'] = st.text_input("위 원문은 어떤 과목에 해당하나요?")
 st.session_state['save_button_clicked'] = False
+if 'view the context' not in st.session_state:
+    st.session_state['view the context'] = False
 save_button = st.button('저장하기')
 
 con = sq3.connect("record1.db", isolation_level = None)
@@ -36,3 +40,16 @@ if st.session_state['save_button_clicked']:
     else:
         pass
     con.commit()
+    con.close()
+
+
+
+st.divider()
+st.subheader("This is your saved context")
+con = sq3.connect("record1.db", isolation_level = None)
+cursor = con.cursor()
+query = cursor.execute('SELECT id, context FROM ctx_data')
+cols = [column[0] for column in query.description]
+result = pd.DataFrame.from_records(data = cursor.fetchall(), columns = cols)
+con.close()
+st.dataframe(result,use_container_width=True)
