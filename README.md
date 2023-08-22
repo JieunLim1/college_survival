@@ -1,3 +1,4 @@
+![CollegeSurvival](image.png)
 # college_survival
 To assist you survive in college
 ## QA Generator
@@ -19,7 +20,7 @@ OPENAI_API_KEY: Go to OpenAI to generate your own API key.
    from dotenv import load_dotenv
   ```
 
-To connect with OpenAI,
+* To connect with OpenAI,
   ```bash
     load_dotenv()
     os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_API_KEY")
@@ -27,6 +28,7 @@ To connect with OpenAI,
   ```
 
 * Run
+
 `streamlit run (head_file_name).py`
 
 

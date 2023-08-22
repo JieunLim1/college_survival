@@ -38,10 +38,14 @@ if correction_button:
         st.write(incorrect_data[i][1])
         response = st.text_input("여기에 답을 입력하시오.", key = count)
         results.append(response)
-        st.button("채점하기", key = count + 300)
+        if 'Submit' not in st.session_state: 
+            st.session_state['Submit'] = False
+        st.button("Submit", key = count + 300)
         if st.button:
-            st.write(incorrect_data[i][2])
-            count += 1
+            st.session_state['Submit'] = True
+            if st.session_state['Submit'] == True:
+                st.write(incorrect_data[i][2])
+        count += 1
         
 
 
