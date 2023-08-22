@@ -17,7 +17,7 @@ class FRQ(QA):
     def make_q(self):
         con = sq3.connect("record1.db", isolation_level=None)
         cursor = con.cursor()
-        cursor.execute('CREATE TABLE if not exists question(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, question TEXT)')
+        cursor.execute('CREATE TABLE if not exists question(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, question TEXT, context_id INTEGER, answer TEXT)')
         cursor.execute('CREATE TABLE if not exists exam_ppr(id INTEGER PRIMARY KEY AUTOINCREMENT, exam TEXT)')
 
         messages = []
@@ -39,7 +39,7 @@ class FRQ(QA):
             result = json.loads(result,strict = False)
             messages.append(message)
             results.append(result)
-            cursor.execute('Insert INTO question(question,context_id) VALUES(?,?)', [result['Question'],self.ctx_id])
+            cursor.execute('Insert INTO question(question,context_id,answer) VALUES(?,?,?)', [result['Question'],self.ctx_id,result['Model Answer']])
             self.qid_list.append(cursor.lastrowid)
             con.commit()
         return results
@@ -71,14 +71,14 @@ class FRQ(QA):
             result = self.chat(messages)
             result = result.content
             self.jdata = json.loads(result,strict = False)
-            print("this is line 80 ",end = " " )
-            print(self.jdata)
             if float(self.jdata['Similarity']) < 0.8:
                 self.result = "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Incorrect. " + self.jdata['Things to improve'] + " You could look upon " + self.jdata['Key Term(s)']
             else:
                 self.result = "Your estimated score: " + self.jdata['Similarity'] + "\n" + "Correct. "+ "If you would like to improve more, please refer below: " + self.jdata['Things to improve']
             result_list.append(self.result)
-        print(result_list)
+            data_list = (response_list[i], self.result, float(self.jdata['Similarity']), self.qid_list[i])
+            cursor.execute('Insert INTO response_data(input, result, score, question_id) \
+                    VALUES(?,?,?,?)', data_list)
         return result_list
         
     # def record(self,date):
@@ -87,12 +87,11 @@ class FRQ(QA):
     #     cursor = con.cursor()
     #     cursor.execute('CREATE TABLE if not exists response_data(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, date TEXT, input TEXT, result TEXT, score REAL)')
 
-    #     data_list = (self.date,self.input,self.result,float(self.jdata['Similarity']))
-    #     cursor.execute('Insert INTO response_data(date, input, result, score) \
-    #                 VALUES(?,?,?,?)', data_list)
-    #     con.commit()
-    #     con.close()
-
+        data_list = (self.date,self.input,self.result,float(self.jdata['Similarity']))
+        cursor.execute('Insert INTO response_data(date, input, result, score) \
+                    VALUES(?,?,?,?)', data_list)
+        con.commit()
+        con.close()
 
     
             
