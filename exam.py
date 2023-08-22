@@ -67,11 +67,7 @@ with st.spinner('Wait for it...'):
         st.session_state['q'] = q_engines[q_type](st.session_state['context'],q_number,st.session_state['id']) #객체 생성
         #cursor.execute('CREATE TABLE if not exists exam_ppr(id INTEGER PRIMARY KEY AUTOINCREMENT, exam TEXT)')
 
-# if st.session_state['gen_button_clicked']:
     qlist = st.session_state['q'].show_q() # 질문 띄우기
-    print(qlist)
-#     st.write(q_text)
-#     st.divider()
     #cursor.execute('INSERT INTO exam_ppr(id,exam_paper) VALUES(?)', (q_text))
     #cursor.execute('INSERT INTO examppr_question(question_id, examppr_id) VALUES (?,?)', (,examppr_id))
     #cursor.execute()
